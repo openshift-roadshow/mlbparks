@@ -37,7 +37,7 @@ public class MLBParks {
     }
 
     @GET()
-    @Path("/")
+    @Path("/all")
     @Produces("application/json")
     public List<? extends DataPoint> getAllDataPoints(@Context HttpServletResponse response) {
         System.out.println("[DEBUG] getAllDataPoints");
