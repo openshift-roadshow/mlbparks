@@ -7,7 +7,6 @@
     <packaging>war</packaging>
 
     <properties>
-        <version.wildfly.swarm>1.0.0.Final</version.wildfly.swarm>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -15,50 +14,18 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wildfly.swarm</groupId>
-            <artifactId>jaxrs</artifactId>
-            <version>${version.wildfly.swarm}</version>
-            <!--
+            <groupId>org.jboss.spec</groupId>
+            <artifactId>jboss-javaee-6.0</artifactId>
+            <version>3.0.2.Final-redhat-4</version>
+            <type>pom</type>
             <scope>provided</scope>
-            -->
-        </dependency>
-        <dependency>
-            <groupId>org.wildfly.swarm</groupId>
-            <artifactId>cdi-api</artifactId>
-            <version>${version.wildfly.swarm}</version>
-            <!--
-            <scope>provided</scope>
-            -->
-        </dependency>
-        <dependency>
-            <groupId>org.wildfly.swarm</groupId>
-            <artifactId>cdi</artifactId>
-            <version>${version.wildfly.swarm}</version>
-            <!--
-             <scope>provided</scope>
-             -->
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
+            <version>3.2.2</version>
         </dependency>
     </dependencies>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.wildfly.swarm</groupId>
-                <artifactId>bom</artifactId>
-                <version>${version.wildfly.swarm}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>org.mongodb</groupId>
-                <artifactId>mongo-java-driver</artifactId>
-                <version>3.2.2</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
     <build>
         <finalName>${project.artifactId}</finalName>
         <pluginManagement>
@@ -71,22 +38,6 @@
                         <failOnMissingWebXml>false</failOnMissingWebXml>
                         <warName>ROOT</warName>
                     </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.wildfly.swarm</groupId>
-                    <artifactId>wildfly-swarm-plugin</artifactId>
-                    <version>${version.wildfly.swarm}</version>
-                    <executions>
-                        <execution>
-                            <id>package</id>
-                        </execution>
-                        <execution>
-                            <id>start</id>
-                        </execution>
-                        <execution>
-                            <id>stop</id>
-                        </execution>
-                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
