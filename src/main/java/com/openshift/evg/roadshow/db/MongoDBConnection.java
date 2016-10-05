@@ -32,11 +32,41 @@ public class MongoDBConnection {
     String dbPassword = System.getenv("DB_PASSWORD");
     String dbName = System.getenv("DB_NAME");
 
-    public MongoDatabase connect(){
+    public MongoDatabase connect() {
         System.out.println("[DEBUG] MongoDBConnection.connect()");
 
         List<MongoCredential> creds = new ArrayList<MongoCredential>();
-        creds.add(MongoCredential.createCredential(dbUsername,dbName,dbPassword.toCharArray()));
+
+        boolean configError = false;
+        if (dbHost == null || dbHost.equals("")) {
+            configError = true;
+            System.out.println("[ERROR] DB_HOST environment variable not set");
+        }
+        if (dbPort == null || dbUsername.equals("")) {
+            configError = true;
+            System.out.println("[ERROR] DB_PORT environment variable not set");
+        }
+        if (dbUsername == null || dbUsername.equals("")) {
+            configError = true;
+            System.out.println("[ERROR] DB_USERNAME environment variable not set");
+        }
+        if (dbPassword == null || dbPassword.equals("")) {
+            configError = true;
+            System.out.println("[ERROR] DB_PASSWORD environment variable not set");
+        }
+        if (dbName == null || dbName.equals("")) {
+            configError = true;
+            System.out.println("[ERROR] DB_NAME environment variable not set");
+        }
+
+        if (configError) throw new RuntimeException("Error in configuration");
+        System.out.println("DB_HOST=" + dbHost);
+        System.out.println("DB_PORT=" + dbUsername);
+        System.out.println("DB_USERNAME=" + dbUsername);
+        System.out.println("DB_PASSWORD=" + dbPassword);
+        System.out.println("DB_NAME=" + dbName);
+
+        creds.add(MongoCredential.createCredential(dbUsername, dbName, dbPassword.toCharArray()));
 
         MongoClient mongoClient = new MongoClient(new ServerAddress(dbHost, Integer.valueOf(dbPort)), creds);
         MongoDatabase database = mongoClient.getDatabase(dbName);
@@ -47,7 +77,7 @@ public class MongoDBConnection {
     /*
      * Load from embedded list of parks using FILENAME
      */
-    public List<Document>  loadParks(){
+    public List<Document> loadParks() {
         System.out.println("[DEBUG] MongoDBConnection.loadParks()");
 
         List<Document> docs = new ArrayList<Document>();
@@ -61,8 +91,8 @@ public class MongoDBConnection {
     }
 
 
-    public List<Document>  loadParks(String fileLocation){
-        System.out.println("[DEBUG] MongoDBConnection.loadParks("+fileLocation+")");
+    public List<Document> loadParks(String fileLocation) {
+        System.out.println("[DEBUG] MongoDBConnection.loadParks(" + fileLocation + ")");
 
         List<Document> docs = new ArrayList<Document>();
         try {
@@ -73,7 +103,7 @@ public class MongoDBConnection {
         return docs;
     }
 
-    public List<Document> loadParks(InputStream is){
+    public List<Document> loadParks(InputStream is) {
         System.out.println("[DEBUG] MongoDBConnection.loadParks(InputStream)");
         List<Document> docs = new ArrayList<Document>();
         String currentLine = null;
@@ -104,7 +134,7 @@ public class MongoDBConnection {
         MongoCollection<Document> collection = database.getCollection(COLLECTION);
 
         System.out.println("Items before insert: " + collection.count());
-        if (collection.count()!=0){
+        if (collection.count() != 0) {
             collection.drop();
             System.out.println("Items droped");
             System.out.println("Items after drop: " + collection.count());
@@ -125,27 +155,26 @@ public class MongoDBConnection {
         collection.insertMany(parks);
         System.out.println("Items after insert: " + collection.count());
     }
+
     /**
-     *
      * @param database
      * @return
      */
-    public MongoCollection<Document> getCollection(MongoDatabase database){
+    public MongoCollection<Document> getCollection(MongoDatabase database) {
         return database.getCollection(COLLECTION);
     }
 
     /**
-     *
      * @param database
      * @return
      */
-    public List<DataPoint> getAll(MongoDatabase database){
+    public List<DataPoint> getAll(MongoDatabase database) {
         System.out.println("[DEBUG] MongoDBConnection.getAll()");
 
         int i = 0;
         FindIterable<Document> iterable = this.getCollection(database).find();
         List<DataPoint> dataPoints = new ArrayList<DataPoint>();
-        for(Document current: iterable){
+        for (Document current : iterable) {
             DataPoint dataPoint = getPark(current);
             System.out.println("Adding item " + i++ + ": " + dataPoint);
             dataPoints.add(dataPoint);
@@ -168,17 +197,16 @@ public class MongoDBConnection {
     }
 
     /**
-     *
      * @param current
      * @return
      */
-    public DataPoint getPark(Document current){
+    public DataPoint getPark(Document current) {
         MLBPark park = new MLBPark();
         park.setId(current.getObjectId("_id").toString());
         park.setName(current.getString("name"));
         park.setBallpark(current.getString("ballpark"));
 
-        Coordinates cord = new Coordinates(current.get("coordinates",List.class));
+        Coordinates cord = new Coordinates(current.get("coordinates", List.class));
         park.setPosition(cord);
         park.setLatitude(cord.getLatitude());
         park.setLongitude(cord.getLongitude());
@@ -199,11 +227,10 @@ public class MongoDBConnection {
 
         System.out.println("Get list of parks in DB");
         List<DataPoint> dataPointList = con.getAll(db);
-        for (DataPoint dataPoint : dataPointList){
+        for (DataPoint dataPoint : dataPointList) {
             System.out.println("DataPoint: " + dataPoint.toString());
         }
     }
-
 
 
 }

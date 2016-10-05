@@ -31,9 +31,14 @@ public class MLBParks {
         System.out.println("[INFO] load()");
         MongoDBConnection con = new MongoDBConnection();
         List<Document> parks = con.loadParks();
-        MongoDatabase db = con.connect();
-        con.init(db, parks);
-        return "Items inserted in database: " + con.sizeInDB(db);
+        try {
+            MongoDatabase db = con.connect();
+            con.init(db, parks);
+            return "Items inserted in database: " + con.sizeInDB(db);
+        }catch(Exception e){
+            System.out.println("[ERROR] Connecting to database");
+        }
+        return "0 Items inserted in database. Error connecting";
     }
 
     @GET()
@@ -43,11 +48,13 @@ public class MLBParks {
         System.out.println("[DEBUG] getAllDataPoints");
 
         MongoDBConnection con = new MongoDBConnection();
-        MongoDatabase db = con.connect();
-
-        response.setHeader("Access-Control-Allow-Origin", "*");
-
-        return con.getAll(db);
+        try {
+            MongoDatabase db = con.connect();
+            return con.getAll(db);
+        }catch(Exception e){
+            System.out.println("[ERROR] Connecting to database");
+        }
+        return new ArrayList<DataPoint>();
     }
 
     @GET
@@ -61,24 +68,28 @@ public class MLBParks {
 
 
         MongoDBConnection con = new MongoDBConnection();
-        MongoDatabase db = con.connect();
+        try{
+            MongoDatabase db = con.connect();
 
-        // make the query object
-        BasicDBObject spatialQuery = new BasicDBObject();
+            // make the query object
+            BasicDBObject spatialQuery = new BasicDBObject();
 
-        ArrayList<double[]> boxList = new ArrayList<double[]>();
-        boxList.add(new double[]{new Float(lat1), new Float(lon1)});
-        boxList.add(new double[]{new Float(lat2), new Float(lon2)});
+            ArrayList<double[]> boxList = new ArrayList<double[]>();
+            boxList.add(new double[]{new Float(lat1), new Float(lon1)});
+            boxList.add(new double[]{new Float(lat2), new Float(lon2)});
 
-        BasicDBObject boxQuery = new BasicDBObject();
-        boxQuery.put("$box", boxList);
+            BasicDBObject boxQuery = new BasicDBObject();
+            boxQuery.put("$box", boxList);
 
-        spatialQuery.put("coordinates", new BasicDBObject("$within", boxQuery));
-        System.out.println("Using spatial query: " + spatialQuery.toString());
+            spatialQuery.put("coordinates", new BasicDBObject("$within", boxQuery));
+            System.out.println("Using spatial query: " + spatialQuery.toString());
 
-        response.setHeader("Access-Control-Allow-Origin", "*");
 
-        return con.getByQuery(db, spatialQuery);
+            return con.getByQuery(db, spatialQuery);
+        }catch(Exception e){
+            System.out.println("[ERROR] Connecting to database");
+        }
+        return new ArrayList<DataPoint>();
     }
 
     @GET
@@ -86,9 +97,8 @@ public class MLBParks {
     @Path("centered")
     public List<DataPoint> findDataPointsCentered(@Context HttpServletResponse response, float lat, float lon, int maxDistance, int minDistance) {
 
-        response.setHeader("Access-Control-Allow-Origin", "*");
         // TODO: Implement this
-        return null;
+        return new ArrayList<DataPoint>();
     }
 
 }
