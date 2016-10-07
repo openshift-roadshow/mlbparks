@@ -370,7 +370,7 @@
             "from": {
               "kind": "ImageStreamTag",
               "namespace": "openshift",
-              "name": "wildfly:latest"
+              "name": "jboss-eap70-openshift:latest"
             },
             "env": [
               {
