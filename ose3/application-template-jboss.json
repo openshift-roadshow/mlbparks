@@ -5,7 +5,7 @@
     "name": "mlbparks",
     "annotations": {
       "iconClass": "icon-java",
-      "description": "Application template MLBParks backend running on Wildfly and using mongodb"
+      "description": "Application template MLBParks backend running on JBoss EAP and using MongoDB"
     }
   },
   "labels": {
