@@ -310,6 +310,40 @@
       }
     },
     {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "wildfly"
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "10.1",
+            "from": {
+              "kind": "DockerImage",
+              "name": "openshift/wildfly-101-centos7:latest"
+            },
+            "annotations": {
+              "supports": "wildfly:10.1,jee,java",
+              "tags": "builder,wildfly,java",
+              "version": "10.1"
+            }
+          },
+          {
+            "name": "latest",
+            "from": {
+              "kind": "ImageStreamTag",
+              "name": "10.1"
+            },
+            "annotations": {
+              "supports": "jee,java",
+              "tags": "builder,wildfly,java"
+            }
+          }
+        ]
+      }
+    },
+    {
       "kind": "BuildConfig",
       "apiVersion": "v1",
       "metadata": {
@@ -343,7 +377,6 @@
           "dockerStrategy": {
             "from": {
               "kind": "ImageStreamTag",
-              "namespace": "openshift",
               "name": "wildfly:latest"
             }
           }
