@@ -9,7 +9,6 @@
     }
   },
   "labels": {
-    "application": "mlbparks",
     "createdBy": "mlbparks-template"
   },
   "parameters": [
@@ -67,18 +66,6 @@
       "required": true
     },
     {
-      "description": "Disable data file preallocation.",
-      "name": "MONGODB_NOPREALLOC"
-    },
-    {
-      "description": "Set MongoDB to use a smaller default data file size.",
-      "name": "MONGODB_SMALLFILES"
-    },
-    {
-      "description": "Runs MongoDB in a quiet mode that attempts to limit the amount of output.",
-      "name": "MONGODB_QUIET"
-    },
-    {
       "description": "Database user name",
       "displayName": "Database user name",
       "name": "MONGODB_USER",
@@ -126,7 +113,9 @@
       "metadata": {
         "name": "mlbparks",
         "labels": {
-          "component": "config"
+          "app": "workshop",
+          "component": "mlbparks",
+          "role": "config"
         }
       },
       "data": {
@@ -143,8 +132,10 @@
       "metadata": {
         "name": "${MONGODB_APPLICATION_NAME}",
         "labels": {
-          "component": "${MONGODB_APPLICATION_NAME}"
-        }
+          "app": "workshop",
+          "component": "mlbparks",
+          "role": "database"
+         }
       },
       "spec": {
         "ports": [
@@ -156,7 +147,7 @@
           }
         ],
         "selector": {
-          "name": "${MONGODB_APPLICATION_NAME}"
+          "deploymentConfig": "${MONGODB_APPLICATION_NAME}"
         },
         "type": "ClusterIP",
         "sessionAffinity": "None"
@@ -168,8 +159,10 @@
       "metadata": {
         "name": "${MONGODB_APPLICATION_NAME}",
         "labels": {
-          "component": "${MONGODB_APPLICATION_NAME}"
-        }
+          "app": "workshop",
+          "component": "mlbparks",
+          "role": "database"
+         }
       },
       "spec": {
         "strategy": {
@@ -201,12 +194,18 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "name": "${MONGODB_APPLICATION_NAME}"
+          "app": "workshop",
+          "component": "mlbparks",
+          "role": "database",
+          "deploymentConfig": "${MONGODB_APPLICATION_NAME}"
         },
         "template": {
           "metadata": {
             "labels": {
-              "name": "${MONGODB_APPLICATION_NAME}"
+              "app": "workshop",
+              "component": "mlbparks",
+              "role": "database",
+              "deploymentConfig": "${MONGODB_APPLICATION_NAME}"
             }
           },
           "spec": {
@@ -264,7 +263,7 @@
                   },
                   {
                     "name": "MONGODB_ADMIN_PASSWORD",
-                    "value": "${MONGODB_ADMIN_USER}"
+                    "value": "${MONGODB_ADMIN_PASSWORD}"
                   }
                 ],
                 "resources": {
@@ -325,8 +324,10 @@
       "metadata": {
         "name": "${APPLICATION_NAME}-${APPLICATION_STAGE}",
         "labels": {
-          "component": "${APPLICATION_NAME}-${APPLICATION_STAGE}"
-        }
+          "app": "workshop",
+          "component": "mlbparks",
+          "role": "backend"
+         }
       },
       "spec": {
         "strategy": {
@@ -372,12 +373,18 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "component": "${APPLICATION_NAME}-${APPLICATION_STAGE}"
+          "app": "workshop",
+          "component": "mlbparks",
+          "role": "database",
+          "deploymentConfig": "${APPLICATION_NAME}-${APPLICATION_STAGE}"
         },
         "template": {
           "metadata": {
             "labels": {
-              "component": "${APPLICATION_NAME}-${APPLICATION_STAGE}"
+              "app": "workshop",
+              "component": "mlbparks",
+              "role": "database",
+              "deploymentConfig": "${APPLICATION_NAME}-${APPLICATION_STAGE}"
             }
           },
           "spec": {
@@ -502,7 +509,10 @@
       "metadata": {
         "name": "${APPLICATION_NAME}-${APPLICATION_STAGE}",
         "labels": {
-          "component": "${APPLICATION_NAME}-${APPLICATION_STAGE}",
+          "name": "${APPLICATION_NAME}-${APPLICATION_STAGE}",
+          "app": "workshop",
+          "component": "mlbparks",
+          "role": "backend",
           "type": "parksmap-backend"
         },
         "annotations": {
@@ -519,7 +529,7 @@
           }
         ],
         "selector": {
-          "component": "${APPLICATION_NAME}-${APPLICATION_STAGE}"
+          "deploymentConfig": "${APPLICATION_NAME}-${APPLICATION_STAGE}"
         },
         "type": "ClusterIP",
         "sessionAffinity": "None"
@@ -531,7 +541,9 @@
       "metadata": {
         "name": "${APPLICATION_NAME}-${APPLICATION_STAGE}",
         "labels": {
-          "component": "${APPLICATION_NAME}-${APPLICATION_STAGE}"
+          "app": "workshop",
+          "component": "mlbparks",
+          "role": "backend"
         }
       },
       "spec": {

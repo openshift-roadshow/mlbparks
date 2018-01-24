@@ -9,7 +9,6 @@
     }
   },
   "labels": {
-    "application": "mlbparks",
     "createdBy": "mlbparks-template"
   },
   "parameters": [
@@ -60,18 +59,6 @@
       "required": true
     },
     {
-      "description": "Disable data file preallocation.",
-      "name": "MONGODB_NOPREALLOC"
-    },
-    {
-      "description": "Set MongoDB to use a smaller default data file size.",
-      "name": "MONGODB_SMALLFILES"
-    },
-    {
-      "description": "Runs MongoDB in a quiet mode that attempts to limit the amount of output.",
-      "name": "MONGODB_QUIET"
-    },
-    {
       "description": "Database user name",
       "displayName": "Database user name",
       "name": "MONGODB_USER",
@@ -119,7 +106,9 @@
       "metadata": {
         "name": "mlbparks",
         "labels": {
-          "component": "config"
+          "app": "workshop",
+          "component": "mlbparks",
+          "role": "config"
         }
       },
       "data": {
@@ -136,7 +125,9 @@
       "metadata": {
         "name": "${MONGODB_APPLICATION_NAME}",
         "labels": {
-          "component": "${MONGODB_APPLICATION_NAME}"
+         "app": "workshop",
+         "component": "mlbparks",
+         "role": "database"
         }
       },
       "spec": {
@@ -149,7 +140,7 @@
           }
         ],
         "selector": {
-          "name": "${MONGODB_APPLICATION_NAME}"
+          "deploymentConfig": "${MONGODB_APPLICATION_NAME}"
         },
         "type": "ClusterIP",
         "sessionAffinity": "None"
@@ -161,7 +152,9 @@
       "metadata": {
         "name": "${MONGODB_APPLICATION_NAME}",
         "labels": {
-          "component": "${MONGODB_APPLICATION_NAME}"
+         "app": "workshop",
+         "component": "mlbparks",
+         "role": "database"
         }
       },
       "spec": {
@@ -194,12 +187,18 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "name": "${MONGODB_APPLICATION_NAME}"
+          "app": "workshop",
+          "component": "mlbparks",
+          "role": "database",
+          "deploymentConfig": "${MONGODB_APPLICATION_NAME}"
         },
         "template": {
           "metadata": {
             "labels": {
-              "name": "${MONGODB_APPLICATION_NAME}"
+              "app": "workshop",
+              "component": "mlbparks",
+              "role": "database",
+              "deploymentConfig": "${MONGODB_APPLICATION_NAME}"
             }
           },
           "spec": {
@@ -257,7 +256,7 @@
                   },
                   {
                     "name": "MONGODB_ADMIN_PASSWORD",
-                    "value": "${MONGODB_ADMIN_USER}"
+                    "value": "${MONGODB_ADMIN_PASSWORD}"
                   }
                 ],
                 "resources": {
@@ -316,7 +315,12 @@
       "kind": "ImageStream",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${APPLICATION_NAME}"
+        "name": "${APPLICATION_NAME}",
+        "labels": {
+          "app": "workshop",
+          "component": "mlbparks",
+          "role": "backend"
+         }
       },
       "spec": {
         "tags": [
@@ -327,13 +331,49 @@
       }
     },
     {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "wildfly"
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "10.1",
+            "from": {
+              "kind": "DockerImage",
+              "name": "openshift/wildfly-101-centos7:latest"
+            },
+            "annotations": {
+              "supports": "wildfly:10.1,jee,java",
+              "tags": "builder,wildfly,java",
+              "version": "10.1"
+            }
+          },
+          {
+            "name": "latest",
+            "from": {
+              "kind": "ImageStreamTag",
+              "name": "10.1"
+            },
+            "annotations": {
+              "supports": "jee,java",
+              "tags": "builder,wildfly,java"
+            }
+          }
+        ]
+      }
+    },
+    {
       "kind": "BuildConfig",
       "apiVersion": "v1",
       "metadata": {
         "name": "${APPLICATION_NAME}",
         "labels": {
-          "build": "${APPLICATION_NAME}"
-        }
+          "app": "workshop",
+          "component": "mlbparks",
+          "role": "backend"
+         }
       },
       "spec": {
         "triggers": [
@@ -401,8 +441,10 @@
       "metadata": {
         "name": "${APPLICATION_NAME}",
         "labels": {
-          "component": "${APPLICATION_NAME}"
-        }
+          "app": "workshop",
+          "component": "mlbparks",
+          "role": "backend"
+         }
       },
       "spec": {
         "strategy": {
@@ -448,12 +490,18 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "component": "${APPLICATION_NAME}"
+          "app": "workshop",
+          "component": "mlbparks",
+          "role": "database",
+          "deploymentConfig": "${APPLICATION_NAME}"
         },
         "template": {
           "metadata": {
             "labels": {
-              "component": "${APPLICATION_NAME}"
+              "app": "workshop",
+              "component": "mlbparks",
+              "role": "database",
+              "deploymentConfig": "${APPLICATION_NAME}"
             }
           },
           "spec": {
@@ -463,8 +511,19 @@
                 "image": "${APPLICATION_NAME}",
                 "ports": [
                   {
-                    "containerPort": 8080,
-                    "protocol": "TCP"
+                      "name": "jolokia",
+                      "containerPort": 8778,
+                      "protocol": "TCP"
+                  },
+                  {
+                      "name": "http",
+                      "containerPort": 8080,
+                      "protocol": "TCP"
+                  },
+                  {
+                      "name": "ping",
+                      "containerPort": 8888,
+                      "protocol": "TCP"
                   }
                 ],
                 "env": [
@@ -475,6 +534,18 @@
                         "fieldPath": "metadata.namespace"
                       }
                     }
+                  },
+                  {
+                      "name": "OPENSHIFT_KUBE_PING_LABELS",
+                      "value": "component=${APPLICATION_NAME}"
+                  },
+                  {
+                      "name": "OPENSHIFT_KUBE_PING_NAMESPACE",
+                      "valueFrom": {
+                          "fieldRef": {
+                              "fieldPath": "metadata.namespace"
+                          }
+                      }
                   },
                   {
                     "name": "DB_PORT",
@@ -555,7 +626,9 @@
       "metadata": {
         "name": "${APPLICATION_NAME}",
         "labels": {
-          "component": "${APPLICATION_NAME}",
+          "app": "workshop",
+          "component": "mlbparks",
+          "role": "backend",
           "type": "parksmap-backend"
         },
         "annotations": {
@@ -572,7 +645,7 @@
           }
         ],
         "selector": {
-          "component": "${APPLICATION_NAME}"
+          "deploymentConfig": "${APPLICATION_NAME}"
         },
         "type": "ClusterIP",
         "sessionAffinity": "None"
@@ -584,7 +657,9 @@
       "metadata": {
         "name": "${APPLICATION_NAME}",
         "labels": {
-          "component": "${APPLICATION_NAME}"
+          "app": "workshop",
+          "component": "mlbparks",
+          "role": "backend"
         }
       },
       "spec": {
