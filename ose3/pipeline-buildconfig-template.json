@@ -5,7 +5,6 @@
     "name": "mlbparks-pipeline"
   },
   "labels": {
-    "application": "mlbparks-pipeline",
     "createdBy": "mlbparks-template"
   },
   "parameters": [
@@ -38,6 +37,9 @@
       "metadata": {
         "name": "${APPLICATION_NAME}-pipeline",
         "labels": {
+          "app": "workshop",
+          "component": "mlbparks",
+          "role": "backend",
           "build": "${APPLICATION_NAME}-pipeline"
         }
       },

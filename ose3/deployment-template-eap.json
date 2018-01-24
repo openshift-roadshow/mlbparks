@@ -5,7 +5,7 @@
     "name": "mlbparks",
     "annotations": {
       "iconClass": "icon-java",
-      "description": "Application template MLBParks backend running on Wildfly and using mongodb"
+      "description": "Application template MLBParks backend running on JBoss EAP and using MongoDB"
     }
   },
   "labels": {
@@ -17,6 +17,13 @@
       "displayName": "Application Name",
       "name": "APPLICATION_NAME",
       "value": "mlbparks",
+      "required": true
+    },
+    {
+      "description": "The lifecycle stage of the mlbparks application.",
+      "displayName": "Lifecycle Stage",
+      "name": "APPLICATION_STAGE",
+      "value": "dev",
       "required": true
     },
     {
@@ -125,10 +132,10 @@
       "metadata": {
         "name": "${MONGODB_APPLICATION_NAME}",
         "labels": {
-         "app": "workshop",
-         "component": "mlbparks",
-         "role": "database"
-        }
+          "app": "workshop",
+          "component": "mlbparks",
+          "role": "database"
+         }
       },
       "spec": {
         "ports": [
@@ -152,10 +159,10 @@
       "metadata": {
         "name": "${MONGODB_APPLICATION_NAME}",
         "labels": {
-         "app": "workshop",
-         "component": "mlbparks",
-         "role": "database"
-        }
+          "app": "workshop",
+          "component": "mlbparks",
+          "role": "database"
+         }
       },
       "spec": {
         "strategy": {
@@ -312,134 +319,10 @@
       }
     },
     {
-      "kind": "ImageStream",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "${APPLICATION_NAME}",
-        "labels": {
-          "app": "workshop",
-          "component": "mlbparks",
-          "role": "backend"
-         }
-      },
-      "spec": {
-        "tags": [
-          {
-            "name": "latest"
-          }
-        ]
-      }
-    },
-    {
-      "kind": "ImageStream",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "wildfly"
-      },
-      "spec": {
-        "tags": [
-          {
-            "name": "10.1",
-            "from": {
-              "kind": "DockerImage",
-              "name": "openshift/wildfly-101-centos7:latest"
-            },
-            "annotations": {
-              "supports": "wildfly:10.1,jee,java",
-              "tags": "builder,wildfly,java",
-              "version": "10.1"
-            }
-          },
-          {
-            "name": "latest",
-            "from": {
-              "kind": "ImageStreamTag",
-              "name": "10.1"
-            },
-            "annotations": {
-              "supports": "jee,java",
-              "tags": "builder,wildfly,java"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "kind": "BuildConfig",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "${APPLICATION_NAME}",
-        "labels": {
-          "app": "workshop",
-          "component": "mlbparks",
-          "role": "backend"
-         }
-      },
-      "spec": {
-        "triggers": [
-          {
-            "type": "GitHub",
-            "github": {
-              "secret": "${GITHUB_TRIGGER_SECRET}"
-            }
-          },
-          {
-            "type": "Generic",
-            "generic": {
-              "secret": "${GENERIC_TRIGGER_SECRET}"
-            }
-          },
-          {
-            "type": "ConfigChange"
-          },
-          {
-            "type": "ImageChange"
-          }
-        ],
-        "runPolicy": "Serial",
-        "source": {
-          "type": "Git",
-          "git": {
-            "uri": "${GIT_URI}",
-            "ref": "${GIT_REF}"
-          }
-        },
-        "strategy": {
-          "type": "Source",
-          "sourceStrategy": {
-            "from": {
-              "kind": "ImageStreamTag",
-              "namespace": "openshift",
-              "name": "wildfly:latest"
-            },
-            "env": [
-              {
-                "name": "MAVEN_ARGS",
-                "value": "clean package -Popenshift -DskipTests -Dcom.redhat.xpaas.repo.redhatga"
-              },
-              {
-                "name": "MAVEN_MIRROR_URL",
-                "value": "${MAVEN_MIRROR_URL}"
-              }
-            ],
-            "incremental": false
-          }
-        },
-        "output": {
-          "to": {
-            "kind": "ImageStreamTag",
-            "name": "${APPLICATION_NAME}:latest"
-          }
-        },
-        "resources": {},
-        "postCommit": {}
-      }
-    },
-    {
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${APPLICATION_NAME}",
+        "name": "${APPLICATION_NAME}-${APPLICATION_STAGE}",
         "labels": {
           "app": "workshop",
           "component": "mlbparks",
@@ -461,9 +344,9 @@
                 "command": [
                   "curl",
                   "-s",
-                  "http://${APPLICATION_NAME}:8080/ws/data/load"
+                  "http://${APPLICATION_NAME}-${APPLICATION_STAGE}:8080/ws/data/load"
                 ],
-                "containerName": "${APPLICATION_NAME}"
+                "containerName": "${APPLICATION_NAME}-${APPLICATION_STAGE}"
               }
             }
           },
@@ -478,11 +361,11 @@
             "imageChangeParams": {
               "automatic": true,
               "containerNames": [
-                "${APPLICATION_NAME}"
+                "${APPLICATION_NAME}-${APPLICATION_STAGE}"
               ],
               "from": {
                 "kind": "ImageStreamTag",
-                "name": "${APPLICATION_NAME}:latest"
+                "name": "${APPLICATION_NAME}:${APPLICATION_STAGE}"
               }
             }
           }
@@ -493,7 +376,7 @@
           "app": "workshop",
           "component": "mlbparks",
           "role": "database",
-          "deploymentConfig": "${APPLICATION_NAME}"
+          "deploymentConfig": "${APPLICATION_NAME}-${APPLICATION_STAGE}"
         },
         "template": {
           "metadata": {
@@ -501,14 +384,14 @@
               "app": "workshop",
               "component": "mlbparks",
               "role": "database",
-              "deploymentConfig": "${APPLICATION_NAME}"
+              "deploymentConfig": "${APPLICATION_NAME}-${APPLICATION_STAGE}"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "${APPLICATION_NAME}",
-                "image": "${APPLICATION_NAME}",
+                "name": "${APPLICATION_NAME}-${APPLICATION_STAGE}",
+                "image": "${APPLICATION_NAME}:${APPLICATION_STAGE}",
                 "ports": [
                   {
                       "name": "jolokia",
@@ -537,7 +420,7 @@
                   },
                   {
                       "name": "OPENSHIFT_KUBE_PING_LABELS",
-                      "value": "component=${APPLICATION_NAME}"
+                      "value": "component=${APPLICATION_NAME}-${APPLICATION_STAGE}"
                   },
                   {
                       "name": "OPENSHIFT_KUBE_PING_NAMESPACE",
@@ -624,8 +507,9 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${APPLICATION_NAME}",
+        "name": "${APPLICATION_NAME}-${APPLICATION_STAGE}",
         "labels": {
+          "name": "${APPLICATION_NAME}-${APPLICATION_STAGE}",
           "app": "workshop",
           "component": "mlbparks",
           "role": "backend",
@@ -645,7 +529,7 @@
           }
         ],
         "selector": {
-          "deploymentConfig": "${APPLICATION_NAME}"
+          "deploymentConfig": "${APPLICATION_NAME}-${APPLICATION_STAGE}"
         },
         "type": "ClusterIP",
         "sessionAffinity": "None"
@@ -655,7 +539,7 @@
       "kind": "Route",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${APPLICATION_NAME}",
+        "name": "${APPLICATION_NAME}-${APPLICATION_STAGE}",
         "labels": {
           "app": "workshop",
           "component": "mlbparks",
@@ -666,7 +550,7 @@
         "host": "${APPLICATION_HOSTNAME}",
         "to": {
           "kind": "Service",
-          "name": "${APPLICATION_NAME}",
+          "name": "${APPLICATION_NAME}-${APPLICATION_STAGE}",
           "weight": 100
         },
         "port": {
