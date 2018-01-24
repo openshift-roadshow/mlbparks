@@ -4,8 +4,12 @@
   "metadata": {
     "name": "mlbparks",
     "annotations": {
-      "iconClass": "icon-java",
-      "description": "Application template MLBParks backend running on Wildfly and using mongodb"
+      "iconClass": "icon-eap",
+      "description": "Application template MLBParks backend running on Wildfly and using mongodb",
+      "openshift.io/display-name": "MLBparks",
+      "openshift.io/long-description": "This template deploys a Parksmap backend showing you where some Major League Baseball (MLB) parks are. This template uses Java and a Mongodb",
+      "openshift.io/provider-display-name": "OpenShift evangelist team",
+      "tags": "roadshow,java,springboot,parksmap-backend"
     }
   },
   "labels": {
