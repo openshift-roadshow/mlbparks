@@ -477,6 +477,11 @@
                 "image": "${APPLICATION_NAME}",
                 "ports": [
                   {
+                      "name": "debug",
+                      "containerPort": 8787,
+                      "protocol": "TCP"
+                  },
+                  {
                       "name": "jolokia",
                       "containerPort": 8778,
                       "protocol": "TCP"
@@ -608,6 +613,12 @@
             "protocol": "TCP",
             "port": 8080,
             "targetPort": 8080
+          },
+          {
+            "name": "8787-tcp",
+            "protocol": "TCP",
+            "port": 8787,
+            "targetPort": 8787
           }
         ],
         "selector": {
