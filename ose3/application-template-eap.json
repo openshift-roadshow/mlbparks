@@ -159,7 +159,8 @@
          "app": "workshop",
          "component": "mlbparks",
          "role": "database",
-         "app.kubernetes.io/part-of": "workshop"
+         "app.kubernetes.io/part-of": "workshop",
+         "app.kubernetes.io/name": "mongodb"
         }
       },
       "spec": {
