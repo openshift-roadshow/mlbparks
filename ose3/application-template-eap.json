@@ -415,7 +415,8 @@
           "app": "workshop",
           "component": "mlbparks",
           "role": "backend",
-          "app.kubernetes.io/part-of": "workshop"
+          "app.kubernetes.io/part-of": "workshop",
+          "app.kubernetes.io/name" : "eap"
          }
       },
       "spec": {
