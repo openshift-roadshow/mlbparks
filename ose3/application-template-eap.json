@@ -1,6 +1,6 @@
 {
   "kind": "Template",
-  "apiVersion": "v1",
+  "apiVersion": "template.openshift.io/v1",
   "metadata": {
     "name": "mlbparks",
     "annotations": {
@@ -158,7 +158,8 @@
         "labels": {
          "app": "workshop",
          "component": "mlbparks",
-         "role": "database"
+         "role": "database",
+         "app.kubernetes.io/part-of": "workshop"
         }
       },
       "spec": {
@@ -413,7 +414,8 @@
         "labels": {
           "app": "workshop",
           "component": "mlbparks",
-          "role": "backend"
+          "role": "backend",
+          "app.kubernetes.io/part-of": "workshop"
          }
       },
       "spec": {
