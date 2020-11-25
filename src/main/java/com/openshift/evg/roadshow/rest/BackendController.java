@@ -20,6 +20,6 @@ public class BackendController{
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
     public Backend get() {
-        return new Backend("mlbparks", "MLB Parks", new Coordinates("39.82", "-98.57"), 5);
+        return new Backend("mlbparks", "AMAZING MLB Parks", new Coordinates("39.82", "-98.57"), 5);
     }
 }
