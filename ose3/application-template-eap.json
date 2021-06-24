@@ -412,6 +412,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "${APPLICATION_NAME}",
+        "annotations" : {
+          "app.openshift.io/vcs-uri": "https://github.com/openshift-roadshow/mlbparks.git",
+          "app.openshift.io/vcs-ref": "master"
+        },
         "labels": {
           "app": "workshop",
           "component": "mlbparks",
