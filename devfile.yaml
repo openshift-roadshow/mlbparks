@@ -1,0 +1,77 @@
+apiVersion: 1.0.0
+metadata:
+  name: mlbarks-
+projects:
+  - name: mlbparks
+    source:
+      location: 'https://github.com/openshift-roadshow/mlbparks.git'
+      startPoint: master
+      type: git
+components:
+  - id: redhat/java11/latest
+    preferences:
+      java.server.launchMode: Standard
+    type: chePlugin
+  - id: redhat/dependency-analytics/latest
+    type: chePlugin
+  - mountSources: true
+    endpoints:
+      - attributes:
+          path: /ws/info
+        name: info
+        port: 8080
+      - attributes:
+          path: /ws/data/all
+        name: data
+        port: 8080
+    memoryLimit: 1024Mi
+    type: dockerimage
+    volumes:
+      - name: m2
+        containerPath: /home/jboss/.m2
+    alias: maven
+    image: 'registry.redhat.io/jboss-eap-7/eap-xp2-openjdk11-openshift-rhel8@sha256:647d092383a760edc083eafb2d7bc3208d6409097281bedbd5eaccde360e7e39'
+    env:
+      - value: '-Xmx200m -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xms20m -Djava.security.egd=file:/dev/./urandom -Duser.home=/home/jboss'
+        name: MAVEN_OPTS
+      - value: '-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -Dsun.util.logging.disableCallerCheck=true'
+        name: JAVA_OPTS_APPEND
+  - id: redhat/vscode-openshift-connector/latest
+    type: chePlugin
+  - id: redhat/vscode-xml/latest
+    type: chePlugin
+commands:
+  - name: 1. Build
+    actions:
+      - workdir: '${CHE_PROJECTS_ROOT}/mlbparks'
+        type: exec
+        command: mvn clean install
+        component: maven
+  - name: 2. Deploy the application
+    actions:
+      - workdir: '${CHE_PROJECTS_ROOT}/mlbparks'
+        type: exec
+        command: 'mvn package wildfly:deploy && echo ''The application was deployed, click on the endpoint from Workspace view to test it'''
+        component: maven
+  - name: 3. Hot update
+    actions:
+      - workdir: '${CHE_PROJECTS_ROOT}/mlbparks'
+        type: exec
+        command: mvn clean install && sleep 2 && cp target/*.war /opt/eap/standalone/deployments/ROOT.war
+        component: maven
+  - name: Debug (Attach)
+    actions:
+      - referenceContent: |
+          {
+          "version": "0.2.0",
+          "configurations": [
+          {
+              "type": "java",
+              "request": "attach",
+              "name": "Debug (Attach)",
+              "hostName": "localhost",
+              "port": 8000
+          }
+          ]
+          }
+        type: vscode-launch
