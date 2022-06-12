@@ -11,6 +11,8 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <version.wildfly.galleon.pack>3.0.0.GA-redhat-00012</version.wildfly.galleon.pack>
+        <version.jkube>1.8.0</version.jkube>
+        <jkube.generator.from>registry.redhat.io/ubi8/openjdk-11:latest</jkube.generator.from>
     </properties>
 
     <repositories>
@@ -95,6 +97,28 @@
                                 <warName>ROOT</warName>
                             </configuration>
                       </plugin>
-                    </plugins>
+                      <plugin>
+                        <groupId>org.eclipse.jkube</groupId>
+                        <artifactId>openshift-maven-plugin</artifactId>
+                        <version>${version.jkube}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>resource</goal>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <enricher>
+                                <config>
+                                    <jkube-service>
+                                        <type>NodePort</type>
+                                    </jkube-service>
+                                </config>
+                            </enricher>
+                        </configuration>
+                    </plugin>
+                </plugins>
     </build>
 </project>
