@@ -10,7 +10,6 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <version.wildfly.galleon.pack>3.0.0.GA-redhat-00012</version.wildfly.galleon.pack>
     </properties>
 
     <repositories>
@@ -62,39 +61,18 @@
     </dependencies>
     <build>
         <finalName>${project.artifactId}</finalName>
+        <pluginManagement>
             <plugins>
-                    <plugin>
-                        <groupId>org.wildfly.plugins</groupId>
-                        <artifactId>wildfly-jar-maven-plugin</artifactId>
-                         <version>6.1.2.Final</version>
-                        <configuration>
-                          <feature-packs>
-                            <feature-pack>
-                                <location>org.jboss.eap:wildfly-galleon-pack:${version.wildfly.galleon.pack}</location>
-                            </feature-pack>
-                          </feature-packs>
-                          <plugin-options>
-                              <jboss-fork-embedded>true</jboss-fork-embedded>
-                          </plugin-options>
-                          <cloud/>
-                      </configuration>
-                        <executions>
-                          <execution>
-                            <goals>
-                              <goal>package</goal>
-                            </goals>
-                          </execution>
-                        </executions>
-                      </plugin>
-                      <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-war-plugin</artifactId>
-                            <version>2.6</version>
-                            <configuration>
-                                <failOnMissingWebXml>false</failOnMissingWebXml>
-                                <warName>ROOT</warName>
-                            </configuration>
-                      </plugin>
-                    </plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>2.6</version>
+                    <configuration>
+                        <failOnMissingWebXml>false</failOnMissingWebXml>
+                        <warName>ROOT</warName>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 </project>
