@@ -4,7 +4,7 @@ This application is a backend that provides geolocation information about MLBPar
 
 == Installation
 
-This version uses [WildFly Bootable JAR](https://docs.wildfly.org/bootablejar/) to generate both WAR and all-in-one JAR file,  and [JKube](https://www.eclipse.org/jkube/) to deploy to Kubernetes and OpenShift.
+This version uses https://docs.wildfly.org/bootablejar/[WildFly Bootable JAR] to generate both WAR and all-in-one JAR file,  and https://www.eclipse.org/jkube/[JKube] to deploy to Kubernetes and OpenShift.
 
 Assuming you're using the project <workshop>:
 
