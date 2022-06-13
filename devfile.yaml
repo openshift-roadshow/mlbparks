@@ -24,6 +24,10 @@ components:
           path: /ws/data/all
         name: data
         port: 8080
+      - attributes:
+          public: 'false'
+        name: jgroups
+        port: 7600
     memoryLimit: 1024Mi
     type: dockerimage
     volumes:
@@ -47,13 +51,7 @@ commands:
         type: exec
         command: mvn clean install
         component: maven
-  - name: 2. Deploy the application
-    actions:
-      - workdir: '${CHE_PROJECTS_ROOT}/mlbparks'
-        type: exec
-        command: 'mvn package wildfly:deploy && echo ''The application was deployed, click on the endpoint from Workspace view to test it'''
-        component: maven
-  - name: 3. Hot update
+  - name: 2. Hot update
     actions:
       - workdir: '${CHE_PROJECTS_ROOT}/mlbparks'
         type: exec
